@@ -47,11 +47,23 @@ app.use('/', (req, res) => {
 /* INICIO DO CÓDIGO DO CHAT */
 
 /* Array que armazena as mensagens */
-let mensagens = []
+let messages = []
 
 /* Cria a conexão com socket.io */
 io.on('connection', socket => {
     console.log('Novo usuário conectado! ID: ' + socket.id)
+    /* Recuperar e manter as mensagens do frontend para o backend */
+    socket.emit('previousMessage', messages)
+
+    /* Dispara ações quando recebe as mensagens do frontend */
+    socket.on('sendMessage', data => {
+
+        /* Adiciona a nova mensagem no final do array messages */
+        messages.push(data)
+
+        /* Propaga a mensagem para todos os usuários conectados no chat */
+        socket.broadcast.emit('recievedMessages', data)
+    })
 })
 
 /* FIM DO CÓDIGO DO CHAT */
